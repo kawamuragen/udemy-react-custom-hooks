@@ -1,40 +1,10 @@
 import "./styles.css";
 import { UserCard } from "./components/UserCard";
-import axios from "axios";
-import { User } from "./types/api/user";
-import { useState } from "react";
-import { UserProfile } from "./types/userProfile";
+import { useAllUsers } from "./hooks/useAllUsers";
 
 export const App = () => {
-  const [userProfiles, setUserProfiles] = useState<Array<UserProfile>>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-
-  const onClickFetchUser = () => {
-    // ボタン押されたとき：　ロード状態true  エラー状態false
-    setLoading(true);
-    setError(false);
-
-    // finallyを使えるのはes2018移行。tsconfig.jsonをいじる。
-    axios
-      .get<Array<User>>("https://jsonplaceholder.typicode.com/users")
-      .then((res) => {
-        // 取得したUser型データを使ってUserProfile型配列を作る。
-        const data = res.data.map((user) => ({
-          id: user.id,
-          name: `${user.name}(${user.username})`,
-          email: user.email,
-          address: `${user.address.city}${user.address.suite}${user.address.street}`
-        }));
-        setUserProfiles(data);
-      })
-      .catch(() => {
-        setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  const { getUsers, userProfiles, loading, error } = useAllUsers();
+  const onClickFetchUser = () => getUsers();
 
   return (
     <div className="App">
